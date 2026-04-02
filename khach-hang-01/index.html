@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Nghệ thuật Đa chiều | Vũ trụ Kỷ niệm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-gradient-start: #05070a;
+            --bg-gradient-end: #0f1219;
+            --card-bg: rgba(18, 22, 35, 0.65);
+            --accent-primary: #ff7b89;
+            --accent-glow: #ffb347;
+            --gap: 12px;
+            --item-width: 42vw;
+            --item-height: 30vw;
+            --scroll-speed: 32s;
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --shadow-soft: 0 20px 35px -15px rgba(0, 0, 0, 0.6);
+        }
+
+        @media (min-width: 768px) {
+            :root {
+                --item-width: 300px;
+                --item-height: 200px;
+                --gap: 18px;
+                --scroll-speed: 45s;
+            }
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 30%, #0b0e17, #010101);
+            background-attachment: fixed;
+            font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', 'Inter', sans-serif;
+            overflow-x: hidden;
+            padding: 1.5rem 0 3rem 0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 60% 40%, rgba(255, 123, 137, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .art-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 5;
+        }
+
+        .art-title h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffffff, #ffb7c5, #ffd89b);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(255, 100, 100, 0.2);
+        }
+
+        .art-title p {
+            font-size: 0.85rem;
+            color: rgba(255, 240, 220, 0.7);
+            letter-spacing: 1px;
+            font-weight: 300;
+            backdrop-filter: blur(4px);
+            display: inline-block;
+            padding: 0 1rem;
+        }
+
+        .art-title .divider {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff9a6e, #ff6a88, transparent);
+            margin: 10px auto 0;
+        }
+
+        .row-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+            margin: 0.8rem 0;
+            backdrop-filter: blur(2px);
+            border-radius: 28px;
+        }
+
+        .track {
+            display: inline-flex;
+            gap: var(--gap);
+            will-change: transform;
+            transform-style: preserve-3d;
+            transition: filter 0.3s ease;
+        }
+
+        .item {
+            width: var(--item-width);
+            height: var(--item-height);
+            border-radius: 24px;
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            background: rgba(10, 12, 22, 0.6);
+            backdrop-filter: blur(8px);
+        }
+
+        .item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: skewX(-25deg);
+            transition: left 0.6s ease;
+            pointer-events: none;
+        }
+
+        .item:hover::after {
+            left: 125%;
+        }
+
+        .item:hover {
+            transform: scale(1.02) translateY(-6px);
+            box-shadow: 0 28px 40px -15px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(255, 123, 137, 0.3);
+            border-color: rgba(255, 123, 137, 0.6);
+        }
+
+        .item:active {
+            transform: scale(0.96);
+        }
+
+        .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            transition: filter 0.4s ease, transform 0.5s ease;
+        }
+
+        .item:hover img {
+            filter: brightness(1.05) contrast(1.05);
+            transform: scale(1.02);
+        }
+
+        .item .art-overlay-tag {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #ffdfc4;
+            letter-spacing: 0.5px;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        .item:hover .art-overlay-tag {
+            opacity: 1;
+        }
+
+        .to-left {
+            animation: scrollLeft var(--scroll-speed) linear infinite;
+        }
+
+        .to-right {
+            animation: scrollRight var(--scroll-speed) linear infinite;
+        }
+
+        @keyframes scrollLeft {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            100% {
+                transform: translate3d(calc(-1 * var(--scroll-distance)), 0, 0);
+            }
+        }
+
+        @keyframes scrollRight {
+            0% {
+                transform: translate3d(calc(-1 * var(--scroll-distance)), 0, 0);
+            }
+
+            100% {
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        .row-container:active .track,
+        .row-container:hover .track {
+            animation-play-state: paused;
+        }
+
+        .lightbox-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(8, 8, 18, 0.92);
+            backdrop-filter: blur(25px) brightness(0.9);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+            font-family: 'Inter', sans-serif;
+        }
+
+        @media (min-width: 768px) {
+            .lightbox-overlay {
+                align-items: center;
+            }
+        }
+
+        .lightbox-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .lightbox-content {
+            background: rgba(20, 24, 40, 0.85);
+            backdrop-filter: blur(30px);
+            border-radius: 40px 40px 30px 30px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.1, 0.8, 0.2, 1);
+            border: 1px solid rgba(255, 210, 170, 0.25);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+            padding: 0;
+        }
+
+        @media (min-width: 768px) {
+            .lightbox-content {
+                border-radius: 48px;
+                width: 90%;
+                max-width: 550px;
+                transform: scale(0.92) translateY(20px);
+                max-height: 85vh;
+            }
+
+            .lightbox-overlay.active .lightbox-content {
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .lightbox-overlay.active .lightbox-content {
+            transform: translateY(0);
+        }
+
+        .lightbox-inner {
+            padding: 28px 24px 32px;
+        }
+
+        .close-bar {
+            width: 50px;
+            height: 5px;
+            background: rgba(255, 180, 140, 0.7);
+            border-radius: 20px;
+            margin: 16px auto 8px auto;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .close-bar:hover {
+            background: #ff9f6e;
+            width: 70px;
+        }
+
+        .lightbox-img {
+            width: 100%;
+            border-radius: 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 12px 28px -8px black;
+            border: 1px solid rgba(255, 215, 180, 0.3);
+        }
+
+        .lightbox-text h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(125deg, #ffc3a0, #ff8f9f);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin: 0 0 12px 0;
+            letter-spacing: -0.3px;
+        }
+
+        .lightbox-text p {
+            color: rgba(245, 235, 220, 0.9);
+            line-height: 1.5;
+            font-weight: 400;
+            font-size: 1rem;
+        }
+
+        .lightbox-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .lightbox-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 200, 0.1);
+            border-radius: 10px;
+        }
+
+        .lightbox-content::-webkit-scrollbar-thumb {
+            background: #ff9a6e;
+            border-radius: 10px;
+        }
+
+        .hidden-content {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            .art-title h1 {
+                font-size: 1.7rem;
+            }
+
+            .item {
+                border-radius: 18px;
+            }
+        }
+
+        .row-container:nth-child(odd) .track {
+            animation-duration: calc(var(--scroll-speed) * 0.95);
+        }
+
+        .spark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: rgba(255, 160, 120, 0.4);
+            z-index: 99;
+            pointer-events: none;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="art-title">
+        <h1>✦ ẢNH HỒI ỨC ✦</h1>
+        <p>Chạm vào ký ức — cảm xúc bất tận</p>
+        <div class="divider"></div>
+    </div>
+
+    <div class="row-container">
+        <div class="track to-left" id="row0"></div>
+    </div>
+    <div class="row-container">
+        <div class="track to-right" id="row1"></div>
+    </div>
+    <div class="row-container">
+        <div class="track to-left" id="row2"></div>
+    </div>
+    <div class="row-container">
+        <div class="track to-right" id="row3"></div>
+    </div>
+    <div class="row-container">
+        <div class="track to-left" id="row4"></div>
+    </div>
+
+    <div class="lightbox-overlay" id="lightboxOverlay">
+        <div class="lightbox-content">
+            <div class="close-bar"></div>
+            <div class="lightbox-inner" id="lightboxBody"></div>
+        </div>
+    </div>
+    <div class="spark">∞ cuộn vô tận | nghệ thuật cảm xúc ∞</div>
+    <script>
+        // ========== DỮ LIỆU ẢNH CHO TỪNG HÀNG (MỖI HÀNG 1 MẢNG RIÊNG) ==========
+        const allRows = [
+            // Hàng 0
+            [
+                { imgPath: "anh/anh1.jpg", title: "🌅 Kỷ niệm ngày đầu", desc: "Khoảnh khắc đầu tiên ta cùng đón ánh dương, nắng vỡ òa trong mắt em. Hoài niệm chẳng thể phai." },
+                { imgPath: "anh/anh2.jpg", title: "🍂 Lối cũ ngập lá", desc: "Dạo bước dưới tán phong đỏ, tay trong tay, lòng lắng lại những thanh âm ngọt ngào." },
+                { imgPath: "anh/anh3.jpg", title: "✨ Điều ước giữa trời sao", desc: "Đêm hè rực rỡ, anh thầm ước muôn đời bên cạnh em. Ánh sao chứng giám." },
+                { imgPath: "anh/anh4.jpg", title: "🎨 Dự án 'Hoàng hôn tím'", desc: "Tác phẩm nghệ thuật kể về câu chuyện tình yêu vượt thời gian." }
+            ],
+            // Hàng 1
+            [
+                { imgPath: "anh/anh5.jpg", title: "🌊 Biển gọi tên nhau", desc: "Sóng vỗ nhẹ, cát trắng mịn màng, đôi chân in dấu hạnh phúc dài miên man." },
+                { imgPath: "anh/anh6.jpg", title: "🎭 Vũ điệu ánh sáng", desc: "Dự án nhiếp ảnh ánh sáng — nơi cảm xúc được khắc họa bằng những tia lung linh." },
+                { imgPath: "anh/anh7.jpg", title: "🍁 Mùa thu và chiếc lá", desc: "Chỉ một chiếc lá thôi cũng đủ nhớ về một người, một thuở ngây thơ." },
+                { imgPath: "anh/anh8.jpg", title: "🏔️ Đỉnh núi mờ sương", desc: "Chuyến đi săn mây, nơi tình yêu thăng hoa cùng thiên nhiên hùng vĩ." }
+            ],
+            // Hàng 2
+            [
+                { imgPath: "anh/anh9.jpg", title: "🌸 Mùa hoa gạo", desc: "Con phố nhỏ đỏ rực hoa, lòng bồi hồi nhớ về buổi chiều tay nắm chặt." },
+                { imgPath: "anh/anh10.jpg", title: "📸 Khoảnh khắc vàng", desc: "Giải thưởng nhiếp ảnh cảm xúc - nụ cười em là ánh sáng đẹp nhất." },
+                { imgPath: "anh/anh11.jpg", title: "🕯️ Ngọn nến ký ức", desc: "Ánh lửa lung linh, câu chuyện xưa cũ, trái tim rung động theo từng nhịp thở." },
+                { imgPath: "anh/anh12.jpg", title: "🎶 Bản tình ca bất hủ", desc: "Dự án âm nhạc kết hợp hình ảnh — giai điệu của tình yêu không lời." }
+            ],
+            // Hàng 3
+            [
+                { imgPath: "anh/anh13.jpg", title: "🌿 Thiên đường xanh", desc: "Chốn bình yên giữa rừng trúc, tâm hồn lắng đọng và trong trẻo." },
+                { imgPath: "anh/anh14.jpg", title: "🍷 Đêm đỏ rượu vang", desc: "Dư vị ngọt ngào cùng ánh nến, nụ cười em làm say đắm lòng ai." },
+                { imgPath: "anh/anh15.jpg", title: "💫 Giấc mơ bay", desc: "Bay qua những tầng mây, mang theo những ước mơ chưa từng kể." },
+                { imgPath: "anh/anh16.jpg", title: "🪐 Hành tinh tình yêu", desc: "Vũ trụ rộng lớn nhưng chỉ cần một trái tim em đủ để anh định cư." }
+            ],
+            // Hàng 4
+            [
+                { imgPath: "anh/anh17.jpg", title: "🎆 Pháo hoa trong tim", desc: "Khoảnh khắc giao thừa, lòng rực cháy yêu thương không lời nào tả xiết." },
+                { imgPath: "anh/anh18.jpg", title: "💝 Ngày kỷ niệm", desc: "Những đóa hồng và nụ cười hạnh phúc bên nhau." },
+                { imgPath: "anh/anh19.jpg", title: "☕ Quán cà phê quen", desc: "Góc nhỏ thân thương, nơi chúng mình bắt đầu." },
+                { imgPath: "anh/anh20.jpg", title: "🌈 Cầu vồng sau mưa", desc: "Niềm hy vọng và những ngày tươi sáng phía trước." }
+            ]
+        ];
+
+        // Hàm tạo một item với overlay xinh xắn
+        function createArtItem(data, idx, customId = null) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+
+            let imgUrl = data.imgPath;
+            if (!imgUrl && data.imgSeed) {
+                imgUrl = typeof data.imgSeed === 'string' ? data.imgSeed : `https://picsum.photos/id/${data.imgSeed}/500/400`;
+            }
+            if (!imgUrl) imgUrl = "https://picsum.photos/500/400?random=" + idx;
+
+            const titleSan = data.title;
+            const descSan = data.desc;
+
+            itemDiv.innerHTML = `
+            <img src="${imgUrl}" alt="gallery moment" loading="lazy">
+            <div class="art-overlay-tag">✨ ${titleSan.split(' ')[0]}</div>
+            <div class="hidden-content">
+                <h2>${titleSan}</h2>
+                <p>${descSan}</p>
+                <small style="opacity:0.7; display:block; margin-top:12px;">#nostalgia #artflow</small>
+            </div>
+        `;
+            return itemDiv;
+        }
+
+        // Tạo danh sách item cho mỗi hàng (dùng mảng ảnh riêng)
+        function buildRowItems(rowIndex) {
+            const itemsList = [];
+            const currentRowImages = allRows[rowIndex];
+
+            if (!currentRowImages || currentRowImages.length === 0) {
+                for (let i = 0; i < 4; i++) {
+                    itemsList.push(createArtItem({ imgPath: null, title: "Ảnh kỷ niệm", desc: "Thêm ảnh của bạn vào đây" }, i, rowIndex));
+                }
+                return itemsList;
+            }
+
+            for (let i = 0; i < currentRowImages.length; i++) {
+                itemsList.push(createArtItem(currentRowImages[i], i, rowIndex));
+            }
+
+            return itemsList;
+        }
+
+        // Thiết lập infinite scroll
+        function setupInfiniteScroll(rowId) {
+            const track = document.getElementById(rowId);
+            if (!track) return;
+
+            track.innerHTML = '';
+            const rowIndex = parseInt(rowId.slice(-1));
+            const items = buildRowItems(rowIndex);
+
+            if (items.length === 0) return;
+
+            items.forEach(item => track.appendChild(item));
+
+            const cloneCount = 5;
+            for (let i = 0; i < cloneCount; i++) {
+                items.forEach(item => {
+                    const clone = item.cloneNode(true);
+                    track.appendChild(clone);
+                });
+            }
+
+            const updateDistance = () => {
+                if (!track.children.length) return;
+                const firstItem = track.children[0];
+                if (!firstItem) return;
+                const itemWidth = firstItem.offsetWidth;
+                const computedGap = parseInt(getComputedStyle(track).gap) || 12;
+                const oneSetWidth = (itemWidth + computedGap) * (items.length);
+                track.style.setProperty('--scroll-distance', `${oneSetWidth}px`);
+            };
+
+            updateDistance();
+            window.addEventListener('resize', () => { updateDistance(); });
+
+            setTimeout(() => {
+                if (track.scrollWidth < window.innerWidth * 2) {
+                    for (let i = 0; i < 2; i++) {
+                        items.forEach(item => track.appendChild(item.cloneNode(true)));
+                    }
+                    updateDistance();
+                }
+            }, 100);
+        }
+
+        // Khởi tạo
+        window.addEventListener('DOMContentLoaded', () => {
+            const rows = ['row0', 'row1', 'row2', 'row3', 'row4'];
+            rows.forEach(rowId => setupInfiniteScroll(rowId));
+        });
+
+        // Lightbox
+        const overlay = document.getElementById('lightboxOverlay');
+        const lightboxBody = document.getElementById('lightboxBody');
+
+        document.body.addEventListener('click', (e) => {
+            const targetItem = e.target.closest('.item');
+            if (!targetItem) return;
+
+            const img = targetItem.querySelector('img');
+            if (!img) return;
+            const imgSrc = img.src;
+            const hiddenDiv = targetItem.querySelector('.hidden-content');
+            if (!hiddenDiv) return;
+
+            const innerHtml = hiddenDiv.innerHTML;
+            lightboxBody.innerHTML = `
+            <img class="lightbox-img" src="${imgSrc}" alt="memory closeup">
+            <div class="lightbox-text">
+                ${innerHtml}
+                <div style="height: 8px;"></div>
+                <div style="border-top: 1px solid rgba(255,200,170,0.2); margin-top: 15px; padding-top: 12px; font-size: 12px; color: #e9c8a7; text-align: center;">✦ chạm để đóng ✦</div>
+            </div>
+        `;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        const closeLightbox = (e) => {
+            if (e.target === overlay || e.target.classList?.contains('close-bar') || (e.target.closest('.close-bar'))) {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        };
+
+        overlay.addEventListener('click', closeLightbox);
+        overlay.querySelector('.lightbox-content')?.addEventListener('click', (e) => e.stopPropagation());
+
+        // Hiệu ứng
+        const style = document.createElement('style');
+        style.textContent = `
+        .track { transition: filter 0.2s; }
+        .row-container:hover .track { filter: drop-shadow(0 0 6px rgba(255, 123, 137, 0.4)); }
+        @keyframes gentlePulse {
+            0% { border-color: rgba(255,123,137,0.2); }
+            100% { border-color: rgba(255,190,110,0.6); }
+        }
+        .item { animation: gentlePulse 3s infinite alternate; }
+        .item:hover { animation: none; }
+    `;
+        document.head.appendChild(style);
+
+        // Tốc độ khác nhau cho mỗi hàng
+        const rowsSpeed = [28, 34, 30, 38, 32];
+        document.querySelectorAll('.row-container .track').forEach((track, idx) => {
+            if (idx < rowsSpeed.length) {
+                track.style.animationDuration = `${rowsSpeed[idx]}s`;
+            }
+        });
+    </script>
+</body>
+
+</html>
